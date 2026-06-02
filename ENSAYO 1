@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo de Gestión y Red Financiera - Davivienda</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        html { scroll-behavior: smooth; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes slideRight {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(300%); }
+        }
+        .selection\:bg-red-100 *::selection { background-color: #fee2e2; color: #E01E26; }
+        
+        /* Ajustes específicos para Guardar como PDF o Imprimir */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .print-avoid-break {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            @page { margin: 1cm; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#F9FAFB] min-h-screen selection:bg-red-100 selection:text-[#E01E26]">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- SVGs Icons Components ---
+        const IconMenu = () => <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>;
+        const IconX = () => <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>;
+        const IconBuilding = () => <svg className="w-12 h-12 lg:w-16 lg:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>;
+        const IconUsers = () => <svg className="w-12 h-12 lg:w-16 lg:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>;
+        const IconKey = () => <svg className="w-12 h-12 lg:w-16 lg:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>;
+        const IconShield = () => <svg className="w-12 h-12 lg:w-16 lg:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>;
+        const IconTrending = () => <svg className="w-12 h-12 lg:w-16 lg:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>;
+        const IconCog = () => <svg className="w-12 h-12 lg:w-16 lg:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>;
+
+        // --- COMPONENTE: Fondo Global Difuminado ---
+        const BackgroundWatermark = () => (
+          <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden bg-[#F9FAFB] print:hidden">
+            <div className="absolute top-[-20%] right-[-10%] w-[80vw] h-[80vw] rounded-[100%] border-[1px] border-[#E01E26]/20 shadow-[0_0_80px_rgba(224,30,38,0.03)] transform rotate-12"></div>
+            <div className="absolute top-[-10%] right-[-20%] w-[90vw] h-[90vw] rounded-[100%] border-[3px] border-[#E01E26]/10 shadow-[inset_0_0_100px_rgba(224,30,38,0.04)] transform rotate-45"></div>
+            <div className="absolute bottom-[-30%] left-[-10%] w-[70vw] h-[70vw] rounded-[100%] border-[2px] border-gray-200 shadow-[0_0_120px_rgba(0,0,0,0.02)]"></div>
+
+            <div className="absolute inset-0 flex items-center justify-center opacity-10 mix-blend-multiply">
+                <img 
+                  src="fondo_agua.png" 
+                  alt="Marca de agua Davivienda" 
+                  className="w-[70vw] max-w-[800px] object-contain"
+                  onError={(e) => { 
+                      e.target.style.display = 'none'; 
+                      document.getElementById('fallback-logo').style.display = 'block';
+                  }}
+                />
+                <div id="fallback-logo" className="hidden text-gray-800">
+                   <svg className="w-[50vw] max-w-[500px] h-auto" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                   </svg>
+                </div>
+            </div>
+          </div>
+        );
+
+        // --- Navigation Menu Component ---
+        const Navbar = ({ toggleMenu, isMenuOpen }) => (
+          <nav className="fixed print:absolute print:shadow-none w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm print:bg-white">
+            <div className="max-w-[1600px] w-[95%] mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-24 lg:h-28">
+                
+                {/* Logo representation */}
+                <div className="flex-shrink-0 flex items-center gap-3">
+                  <img 
+                    src="titulo_final.png" 
+                    alt="Davivienda" 
+                    className="h-12 md:h-14 lg:h-16 w-auto object-contain" 
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/200x60/FFFFFF/E01E26?text=Davivienda'; }} 
+                  />
+                </div>
+                
+                {/* Menú Desktop */}
+                <div className="hidden lg:flex items-center space-x-8 xl:space-x-12 print:hidden">
+                    <a href="#relacion-vinculados" className="text-base lg:text-lg xl:text-xl font-semibold text-gray-600 hover:text-[#E01E26] transition-colors">Vinculados</a>
+                    <a href="#economias-escala" className="text-base lg:text-lg xl:text-xl font-semibold text-gray-600 hover:text-[#E01E26] transition-colors">Economías de Escala</a>
+                    <a href="#uso-red" className="text-base lg:text-lg xl:text-xl font-semibold text-gray-600 hover:text-[#E01E26] transition-colors">Uso de Red</a>
+                    <a href="#sinergia-estrategica" className="text-base lg:text-lg xl:text-xl font-semibold text-gray-600 hover:text-[#E01E26] transition-colors">Sinergia</a>
+                    <a href="#retos-transformacion" className="text-base lg:text-lg xl:text-xl font-semibold text-gray-600 hover:text-[#E01E26] transition-colors">Retos</a>
+                </div>
+
+                <div className="flex lg:hidden items-center">
+                  <button onClick={toggleMenu} className="text-[#1F2937] hover:text-[#E01E26] focus:outline-none transition-colors print:hidden">
+                    {isMenuOpen ? <IconX /> : <IconMenu />}
+                  </button>
